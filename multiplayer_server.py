@@ -74,7 +74,7 @@ def validate(room,p,act):
  elif who=="inspect" and phase=="investigate" and not p.get("done"):
   other=next((x for x in room["players"] if x["id"]==act.get("playerId") and x!=p),None)
   if not other:fail("请选择其他宾客")
-  card=next((c for c in other["hand"] if c["id"]==act.get("cardId")),None)
+  card=random.choice(other["hand"]) if not act.get("cardId") and other["hand"] else next((c for c in other["hand"] if c["id"]==act.get("cardId")),None)
   if not card:fail("这张牌已不存在")
   p["peek"]={"name":other["name"],"type":card["type"],"label":card["label"]};p["done"]=True
  elif who=="submit" and phase=="submit" and not p.get("done"):
@@ -85,7 +85,7 @@ def validate(room,p,act):
  elif who=="next" and phase=="reveal":
   if p["id"]!=room["host"]:fail("由房主开启下一轮")
   if room["round"]>=3:room["phase"]="vote"
-  else:room["round"]+=1;room["phase"]="investigate";room["target"]=random.choice(TYPES)
+  else:room["round"]+=1;room["phase"]="investigate";room["target"]=random.choice(TYPES);room["pending"]=[]
   for x in room["players"]:x["done"]=False
  elif who=="vote" and phase=="vote" and not p.get("done"):
   target=next((x for x in room["players"] if x["id"]==act.get("playerId") and x!=p),None)
